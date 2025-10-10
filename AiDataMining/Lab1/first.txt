@@ -1,2 +1,6 @@
 https://colab.research.google.com/drive/1UHrg2DFhpcMJxYNFQfdz0o2NU8eRCYl4?usp=sharing - lab work
 https://drive.google.com/file/d/124L25CuZ_AlVQfnfjVvUHwm4H0zS3bHv/view?usp=sharing - dataset
+в лабу после каждой мини программы добавлять мини отчет по тому что за график и как работает
+какое распределение на графике и что оно нам говорит 
+объясняем что за анализ мы делаем 
+и в конце сделать вывод
