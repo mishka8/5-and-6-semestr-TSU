@@ -16,10 +16,12 @@ class mini_string//простая версия класса string
 public:
 
     mini_string(string s = "") : text(s) {};
-    void add_one() { text += '!'; };
+
+    void add_one() { text += 'Z'; };
+
     string get_text() { return text; };
-    
     void set_string(string s) { text = s; };
+
     void print_text() { cout << text << endl; };
     
     mini_string(const mini_string& other) = default;
@@ -38,7 +40,7 @@ class monitor
     condition_variable condition;
 
 public:
-    bool data_ready()//функция проверки условия ожидания
+    bool data_ready()//проверка условия ожидания
     {
         return new_data || data_end;
     }
@@ -74,7 +76,7 @@ public:
         cout << "potok_consumer - ";
         current_ptr->print_text();
         new_data = false;
-
+         
         cout << endl;
 
         return current_ptr;
@@ -102,7 +104,7 @@ void potok_maker(monitor& monnitor)
 
     strings.push_back(new mini_string("Hello word"));//строки для передачи
     strings.push_back(new mini_string("test1"));
-    strings.push_back(new mini_string("test2"));
+    strings.push_back(new mini_string("test2"));    
     strings.push_back(new mini_string("end testing"));
 
     for (auto* str : strings)
@@ -128,6 +130,7 @@ void potok_consumer(monitor& monik)
 
         if (str == nullptr)
         {
+            cout << "-------------" << endl;
             cout << "END" << endl;
             break;
         }
