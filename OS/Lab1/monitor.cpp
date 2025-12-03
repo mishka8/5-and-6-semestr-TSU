@@ -49,11 +49,15 @@ public:
     {
         unique_lock<mutex> lock(mut);
 
+        sleep_for(seconds(2));//задержка
+
         current_ptr = mini_str_ptr;
 
         mini_str_ptr->add_one();
         cout << "potok_maker - ";
         mini_str_ptr->print_text();
+
+        
 
         new_data = true;
         condition.notify_one();
@@ -66,7 +70,7 @@ public:
         
         condition.wait(lock, [this] { return data_ready(); });//освобождаем mutex и блокируем поток
         
-        sleep_for(seconds(2));//задержка
+        
 
         if (data_end)
         {
