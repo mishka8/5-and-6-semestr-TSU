@@ -1,1 +1,2 @@
-
+https://colab.research.google.com/drive/1rEmX6jdRfBs6q2lgLTn4PmMUyA8OMDVf?usp=sharing - вторая лаба
+https://drive.google.com/file/d/1anCInbw0E7YKLvR54NGw6MflxH6zirdl/view?usp=sharing - датасет
