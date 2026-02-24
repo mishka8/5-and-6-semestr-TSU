@@ -1,5 +1,3 @@
-library(e1071)
-
 #генирируем объем выборки 
 n <- sample(100:200, 1)
 
@@ -104,10 +102,9 @@ sprintf("Коэффициент асимметрии (Геометрическо
 
 #коэффицент эксцесса
 
-koef_ess_bin <-  kurtosis(bin_raspr)
+koef_ess_bin <- (sum((bin_raspr - mean(bin_raspr))^4) / n) / (sko_bin^4) - 3
 
-koeff_ess_geom <-  kurtosis(geom_raspr)
-
+koeff_ess_geom <- (sum((geom_raspr - mean(geom_raspr))^4) / n) / (sko_geom^4) - 3
 
 sprintf("Коэффициент асимметрии (Биноминальное распределение) = %f", koef_ess_bin)
 
@@ -261,4 +258,3 @@ thfr_geom <- pnth_geom[2:(k_geom + 1)] - pnth_geom[1:k_geom]
 
 
 chisq_test_geom <- chisq.test(x = xhc_geom, p = thfr_geom)
-
