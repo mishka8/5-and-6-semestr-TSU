@@ -1,2 +1,2 @@
-https://colab.research.google.com/drive/1v1lD3Ed4EdWd_A7q5OUFR_FxBotEDGEa - labs
+https://colab.research.google.com/drive/1v1lD3Ed4EdWd_A7q5OUFR_FxBotEDGEa?usp=sharing - labs
 https://drive.google.com/file/d/1mqNsNyv-CUt2C9-to3QOGITGmauVlZOn/view?usp=sharing - dataset
