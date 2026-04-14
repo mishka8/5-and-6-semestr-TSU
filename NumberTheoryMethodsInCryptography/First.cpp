@@ -67,6 +67,7 @@ public:
 
 
     // Теоретико числовые методы
+    //быстрое возведение в квадрат 
     BigNumber fastSquare();
 
     BigNumber getSum(BigNumber& other);
@@ -1436,6 +1437,7 @@ BigNumber BigNumber::fastSquare()
     return res;
 }
 
+
 int main()
 {
     BigNumber num1;
@@ -1476,7 +1478,7 @@ int main()
     BigNumber res_fast5 = num5.fastSquare();
     auto end = high_resolution_clock::now();
     auto duration_fast5 = duration_cast<microseconds>(end - start);
-
+    
     //обычное умножение
     start = high_resolution_clock::now();
     BigNumber res5 = num5 * num5;
