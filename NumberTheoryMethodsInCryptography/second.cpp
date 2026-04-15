@@ -1,4 +1,4 @@
-﻿#include <limits>
+#include <limits>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -74,6 +74,14 @@ public:
     BigNumber fastPow(BigNumber& exponent);
     BigNumber fastPow(long long exponent);
 
+    // Алгоритм Барретта для приведения по модулю
+    BigNumber barrettMod(BigNumber& m, int b = 10);
+    BigNumber barrettMod(BigNumber& m, BigNumber& x, int b = 10);
+    static BigNumber barrettReduce(const BigNumber& x, const BigNumber& m, const BigNumber& mu, int b = 10);
+    static BigNumber computeMu(const BigNumber& m, int b = 10);
+
+    void testBarrettAlgorithm();
+
     BigNumber getSum(BigNumber& other);
     BigNumber getDifference(BigNumber& other);
     BigNumber getDiv(BigNumber& other);
@@ -98,7 +106,7 @@ public:
     BigNumber operator-=(BigNumber& other);
 
     BigNumber operator*(const BASE& num);
-    BigNumber operator*(const BigNumber& other);
+    BigNumber operator*(const BigNumber& other) const;
     BigNumber operator*=(const BigNumber& other);
 
     BigNumber operator/(const BASE& num);
@@ -111,7 +119,7 @@ public:
     // ввод вывод
     string HexString() const;
     void OutputInHex() const;
-    string DecString();
+    string DecString() const;
     BigNumber OutputInDec(string& str);
 
     BigNumber shift(int x)
@@ -725,7 +733,7 @@ BigNumber BigNumber::operator*(const BASE& num)
     return result;
 }
 
-BigNumber BigNumber::operator*(const BigNumber& other)
+BigNumber BigNumber::operator*(const BigNumber& other) const
 {
     BigNumber result;
     result.coefs.resize(
@@ -908,7 +916,7 @@ void BigNumber::OutputInHex() const
     }
 }
 
-string BigNumber::DecString()
+string BigNumber::DecString() const
 {
     BigNumber newNum = *this;
     bool minus = false;
@@ -1521,6 +1529,214 @@ BigNumber BigNumber::fastPow(long long exponent) {
     return result;
 }
 
+BigNumber BigNumber::barrettMod(BigNumber& m, int b) {
+    // Вычисляем mu = b^(2k) / m
+    BigNumber mu = computeMu(m, b);
+    // Применяем барреттово приведение
+    return barrettReduce(*this, m, mu, b);
+}
+
+BigNumber BigNumber::barrettMod(BigNumber& m, BigNumber& x, int b) {
+    BigNumber mu = computeMu(m, b);
+    return barrettReduce(x, m, mu, b);
+}
+
+
+BigNumber BigNumber::computeMu(const BigNumber& m, int b) {
+    string m_str = m.DecString();
+    int k = m_str.length();
+
+    BigNumber b_pow_2k;
+    b_pow_2k.coefs[0] = 1;
+    b_pow_2k.sign = 0;
+
+    // Создаем BigNumber из b один раз
+    BigNumber b_num;
+    b_num.coefs[0] = static_cast<BASE>(b);
+    b_num.sign = 0;
+
+    // Возводим b в степень 2k
+    for (int i = 0; i < 2 * k; i++) {
+        b_pow_2k = b_pow_2k * b_num;  // Используем умножение BigNumber на BigNumber
+    }
+
+    BigNumber temp_m = const_cast<BigNumber&>(m);
+    return b_pow_2k / temp_m;
+}
+
+// Исправленная версия barrettReduce
+BigNumber BigNumber::barrettReduce(const BigNumber& x, const BigNumber& m, const BigNumber& mu, int b) {
+    BigNumber m_squared = m * m;
+    BigNumber x_temp = const_cast<BigNumber&>(x);
+    BigNumber m_temp = const_cast<BigNumber&>(m);
+
+    if (x_temp > m_squared) {
+        cout << "(x >= m^2)" << endl;
+        return x_temp % m_temp;
+    }
+
+    if (b <= 3) {
+        cout << "b > 3" << endl;
+        return x_temp % m_temp;
+    }
+
+    string m_str = m.DecString();
+    int k = m_str.length();
+
+    // Создаем BigNumber из b один раз
+    BigNumber b_num;
+    b_num.coefs[0] = static_cast<BASE>(b);
+    b_num.sign = 0;
+
+    // Вычисляем b^k
+    BigNumber b_pow_k;
+    b_pow_k.coefs[0] = 1;
+    b_pow_k.sign = 0;
+    for (int i = 0; i < k; i++) {
+        b_pow_k = b_pow_k * b_num;
+    }
+
+    // Вычисляем b^(k+1)
+    BigNumber b_pow_k1 = b_pow_k * b_num;
+
+    // Вычисляем b^(k-1)
+    BigNumber b_pow_km1;
+    b_pow_km1.coefs[0] = 1;
+    b_pow_km1.sign = 0;
+    for (int i = 0; i < k - 1; i++) {
+        b_pow_km1 = b_pow_km1 * b_num;
+    }
+
+    BigNumber x_div_b_km1 = x_temp / b_pow_km1;
+    BigNumber q_temp = x_div_b_km1 * mu;
+    BigNumber q = q_temp / b_pow_k1;
+
+    BigNumber r1 = x_temp % b_pow_k1;
+    BigNumber qm = q * m_temp;
+    BigNumber r2 = qm % b_pow_k1;
+
+    BigNumber r;
+    if (r1 > r2) {
+        r = r1 - r2;
+    } else {
+        r = (b_pow_k1 + r1) - r2;
+    }
+
+    while (r >= m_temp) {
+        r = r - m_temp;
+    }
+
+    return r;
+}
+
+void testBarrettAlgorithm() 
+{
+    string str1 = "3000";
+    string str2 = "1234567";
+    cout << "test1" << endl;
+    BigNumber m1(str1, 1);
+    BigNumber x1(str2, 1);
+    int b1 = 10;
+
+    BigNumber result1 = x1.barrettMod(m1, b1);
+    BigNumber expected1 = x1 % m1;
+
+    cout << "x = " << x1 << endl;
+    cout << "m = " << m1 << endl;
+    cout << "res_bar = " << result1 << endl;
+    cout << "res = " << expected1 << endl << endl;
+
+
+    cout << "test2" << endl;
+    string str3 = "3000";
+    string str4 = "98765432";
+    BigNumber m2(str3, 1);
+    BigNumber x2(str4, 1);
+    int b2 = 10;
+
+    BigNumber result2 = x2.barrettMod(m2, b2);
+    BigNumber expected2 = x2 % m2;
+
+    cout << "x = " << x2 << endl;
+    cout << "m = " << m2 << endl;
+    cout << "res_bar = " << result2 << endl;
+    cout << "res = " << expected2 << endl << endl;
+    
+
+    cout << "test3" << endl;
+    string str5 = "3000";
+    string str6 = "1234567";
+    BigNumber m3(str5, 1);
+    BigNumber x3(str6, 1);
+
+    for (int b_test : {10, 16, 100}) 
+    {
+        cout << "b = " << b_test << ": ";
+        BigNumber result = x3.barrettMod(m3, b_test);
+        BigNumber expected = x3 % m3;
+        cout << "res_bar = " << result << " res = " << expected << endl;
+    }
+    cout << endl << endl;
+
+    
+    cout << "test4" << endl;
+    string str7 = "1000";
+    string str8 = "500";
+    BigNumber m4(str7, 1);
+    BigNumber x4(str8, 1);
+    BigNumber result4 = x4.barrettMod(m4, 10);
+    BigNumber expected4 = x4 % m4;
+    cout << "x < m: " << result4 << " == " << expected4 << endl;
+
+    string str9 = "1000";
+    BigNumber m5(str9, 1);
+    BigNumber x5(str9, 1);
+    BigNumber result5 = x5.barrettMod(m5, 10);
+    BigNumber expected5 = x5 % m5;
+    cout << "x == m: " << result5 << " == " << expected5 << endl;
+
+    string str10 = "1000";
+    string str11 = "0";
+    BigNumber m6(str10, 1);
+    BigNumber x6(str11, 1);
+    BigNumber result6 = x6.barrettMod(m6, 10);
+    BigNumber expected6 = x6 % m6;
+    cout << "x = 0: " << result6 << " == " << expected6;
+    cout << endl;
+}
+
+// Интерактивный тест как в Python примере
+void interactiveBarrettTest() {
+    cout << "\n=== ИНТЕРАКТИВНЫЙ ТЕСТ АЛГОРИТМА БАРРЕТТА ===" << endl;
+
+    string m_str, x_str;
+    int b;
+
+    cout << "Введите m: ";
+    cin >> m_str;
+    cout << "Введите x: ";
+    cin >> x_str;
+    cout << "Введите b: ";
+    cin >> b;
+
+    BigNumber m(m_str, 1);
+    BigNumber x(x_str, 1);
+
+    cout << "\nРезультат:" << endl;
+    BigNumber barrett_result = x.barrettMod(m, b);
+    BigNumber standard_result = x % m;
+
+    cout << "Алгоритм Барретта: " << barrett_result << endl;
+    cout << "Стандартный алгоритм: " << standard_result << endl;
+
+    if (barrett_result == standard_result) {
+        cout << "✓ Результаты совпадают!" << endl;
+    }
+    else {
+        cout << "✗ Результаты НЕ совпадают!" << endl;
+    }
+}
+
 int main()
 {
     string str1 = "12345";
@@ -1572,6 +1788,8 @@ int main()
 
     cout << "999999 ^ 50  = " << test6_res << endl;
     cout << endl;
+
+    testBarrettAlgorithm();
 
     return 0;
 }
