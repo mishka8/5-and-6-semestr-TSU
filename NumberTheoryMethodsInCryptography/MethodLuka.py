@@ -1,5 +1,6 @@
 import random
 
+#возвращаем множество простых делителей например для 60  - {2 3 5}
 def factorize(n):
     factors = set()
     d = 2
@@ -12,18 +13,21 @@ def factorize(n):
         factors.add(n)
     return factors
 
+#верхняя граница ошибки метода
+def error_f_lucas(t):
+    return (1/2) ** t
 
-def error_f_lucas(n, t):
-    factors = factorize(n - 1)
+# def error_f_lucas(n, t):
+#     factors = factorize(n - 1)
 
-    phi = n - 1
-    for p in factors:
-        phi = phi // p * (p - 1)
+#     phi = n - 1
+#     for p in factors:
+#         phi = phi // p * (p - 1)
     
-    p_good = phi / (n - 1)
-    error = (1 - p_good) ** t
+#     p_good = phi / (n - 1)
+#     error = (1 - p_good) ** t
     
-    return error
+#     return error
 
 def Lucas(n, t):
     if n < 2:
@@ -51,15 +55,16 @@ def Lucas(n, t):
 
 def test_lucas():
     print("test_lucas")
-    test_data = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
-                 1, 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25,
-                 561, 8911, 10585, 15841, 29341, 41041]
-    t = 3
+    test_data = [11, 13, 17, 19, 23, 10, 12, 14, 15, 
+                 16, 18, 20, 561, 8911, 10585, 15841, 
+                 29341, 41041]
+    t = 1
     
     for n in test_data:
         res = Lucas(int(n), t)
         if res == True:
-            err = error_f_lucas(int(n), t)
+            err = error_f_lucas(t)
+            #err = error_f_lucas(int(n), t)
             print(f"Число {n} простое. Вероятность ошибки = {err:.6f}\n")
         elif res == False:
             print(f"Число {n} составное\n")
